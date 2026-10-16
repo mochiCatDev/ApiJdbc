@@ -154,12 +154,12 @@ public class VideojuegoJdbc {
 			ps.setDouble(3, videojuegoActualizado.getPrecio());
 			ps.setBoolean(4, videojuegoActualizado.isDisponible());
 			ps.setString(5, videojuegoActualizado.getGenero());
-			ps.setString(6, videojuegoActualizado.getCodigo());
+			ps.setString(6, codigo);
 
 			int filas = ps.executeUpdate();
 			log.info("Videojuego actualizado exitosamente. Filas afectadas: {}", filas);
 
-			videojuego = new Videojuego(videojuegoActualizado.getCodigo(), videojuegoActualizado.getNombre(),
+			videojuego = new Videojuego(codigo, videojuegoActualizado.getNombre(),
 					videojuegoActualizado.getPlataforma(), videojuegoActualizado.getPrecio(),
 					videojuegoActualizado.isDisponible(), videojuegoActualizado.getGenero());
 		} catch (SQLException e) {
