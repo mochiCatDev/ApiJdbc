@@ -109,6 +109,7 @@ public class VideojuegoJdbc {
 		try {
 			con = Conexion.getConnection();
 			ps = con.prepareStatement(sql);
+			ps.setString(1, codigo);			
 			rs = ps.executeQuery();
 
 			if (rs.next()) {
@@ -141,19 +142,19 @@ public class VideojuegoJdbc {
 	public static Videojuego actualizar(String codigo, Videojuego videojuegoActualizado) {
 		Connection con = null;
 		PreparedStatement ps = null;
-		String sql = "UPDATE videojuegos SET codigo = ?, nombre = ?, plataforma = ?, precio = ?, disponible = ?, genero = ?";
+		String sql = "UPDATE videojuegos SET nombre = ?, plataforma = ?, precio = ?, disponible = ?, genero = ? WHERE codigo = ?";
 		Videojuego videojuego = null;
 
 		try {
 			con = Conexion.getConnection();
 			ps = con.prepareStatement(sql);
 
-			ps.setString(1, videojuegoActualizado.getCodigo());
-			ps.setString(2, videojuegoActualizado.getNombre());
-			ps.setString(3, videojuegoActualizado.getPlataforma());
-			ps.setDouble(4, videojuegoActualizado.getPrecio());
-			ps.setBoolean(5, videojuegoActualizado.isDisponible());
-			ps.setString(6, videojuegoActualizado.getGenero());
+			ps.setString(1, videojuegoActualizado.getNombre());
+			ps.setString(2, videojuegoActualizado.getPlataforma());
+			ps.setDouble(3, videojuegoActualizado.getPrecio());
+			ps.setBoolean(4, videojuegoActualizado.isDisponible());
+			ps.setString(5, videojuegoActualizado.getGenero());
+			ps.setString(6, videojuegoActualizado.getCodigo());
 
 			int filas = ps.executeUpdate();
 			log.info("¡Videojuego actualizado con éxito!: {} afectadas", filas);
@@ -162,6 +163,8 @@ public class VideojuegoJdbc {
 					videojuegoActualizado.getPlataforma(), videojuegoActualizado.getPrecio(),
 					videojuegoActualizado.isDisponible(), videojuegoActualizado.getGenero());
 		} catch (SQLException e) {
+			log.error("Error al actualizar el cliente: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al actualizar el cliente");
 		} finally {
 			try {
 				if (ps != null) {
