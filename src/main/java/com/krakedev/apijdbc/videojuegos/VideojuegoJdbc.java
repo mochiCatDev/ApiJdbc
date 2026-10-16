@@ -186,7 +186,7 @@ public class VideojuegoJdbc {
 	public static boolean eliminar(String codigo) {
 		Connection con = null;
 		PreparedStatement ps = null;
-		String sql = "DELETE * FROM WHERE codigo = ?";
+		String sql = "DELETE FROM videojuegos WHERE codigo = ?";
 		boolean eliminado = false;
 
 		try {
