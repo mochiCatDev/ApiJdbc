@@ -134,7 +134,48 @@ public class VideojuegoJdbc {
 				throw new RuntimeException("Error al cerrar los recursos de búsquedad");
 			}
 		}
-		
+
+		return videojuego;
+	}
+
+	public static Videojuego actualizar(String codigo, Videojuego videojuegoActualizado) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = "UPDATE videojuegos SET codigo = ?, nombre = ?, plataforma = ?, precio = ?, disponible = ?, genero = ?";
+		Videojuego videojuego = null;
+
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+
+			ps.setString(1, videojuegoActualizado.getCodigo());
+			ps.setString(2, videojuegoActualizado.getNombre());
+			ps.setString(3, videojuegoActualizado.getPlataforma());
+			ps.setDouble(4, videojuegoActualizado.getPrecio());
+			ps.setBoolean(5, videojuegoActualizado.isDisponible());
+			ps.setString(6, videojuegoActualizado.getGenero());
+
+			int filas = ps.executeUpdate();
+			log.info("¡Videojuego actualizado con éxito!: {} afectadas", filas);
+
+			videojuego = new Videojuego(videojuegoActualizado.getCodigo(), videojuegoActualizado.getNombre(),
+					videojuegoActualizado.getPlataforma(), videojuegoActualizado.getPrecio(),
+					videojuegoActualizado.isDisponible(), videojuegoActualizado.getGenero());
+		} catch (SQLException e) {
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				log.error("Error al cerrar los recursos de actualización: {}", e.getMessage(), e);
+				throw new RuntimeException("Error al cerrar los recursos de actualización");
+			}
+		}
+
 		return videojuego;
 	}
 }
