@@ -95,7 +95,46 @@ public class VideojuegoJdbc {
 				throw new RuntimeException("Error al cerrar los recursos de la consulta.");
 			}
 		}
-		
+
 		return videojuegos;
+	}
+
+	public static Videojuego buscar(String codigo) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		String sql = "SELECT * FROM videojuegos WHERE codigo = ?";
+		Videojuego videojuego = null;
+
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				videojuego = new Videojuego(rs.getString("codigo"), rs.getString("nombre"), rs.getString("plataforma"),
+						rs.getDouble("precio"), rs.getBoolean("disponible"), rs.getString("genero"));
+			}
+		} catch (SQLException e) {
+			log.error("Error al buscar videojuego por código: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al buscar videojuego por codigo");
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				log.error("Error al cerrar los recursos de búsqueda: {}", e.getMessage(), e);
+				throw new RuntimeException("Error al cerrar los recursos de búsquedad");
+			}
+		}
+		
+		return videojuego;
 	}
 }
