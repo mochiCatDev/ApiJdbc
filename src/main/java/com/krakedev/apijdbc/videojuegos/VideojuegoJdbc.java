@@ -2,9 +2,10 @@ package com.krakedev.apijdbc.videojuegos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javax.management.RuntimeErrorException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,5 +56,46 @@ public class VideojuegoJdbc {
 		}
 
 		return videojuego;
+	}
+
+	public static List<Videojuego> listar() {
+		List<Videojuego> videojuegos = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		String sql = "SELECT * FROM videojuegos";
+
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				Videojuego v = new Videojuego(rs.getString("codigo"), rs.getString("nombre"),
+						rs.getString("plataforma"), rs.getDouble("precio"), rs.getBoolean("disponible"),
+						rs.getString("genero"));
+				videojuegos.add(v);
+			}
+		} catch (SQLException e) {
+			log.error("Error al listar clientes: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al listar clientes");
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				log.error("Error al cerrar los recursos de la consulta: {}", e.getMessage());
+				throw new RuntimeException("Error al cerrar los recursos de la consulta.");
+			}
+		}
+		
+		return videojuegos;
 	}
 }
