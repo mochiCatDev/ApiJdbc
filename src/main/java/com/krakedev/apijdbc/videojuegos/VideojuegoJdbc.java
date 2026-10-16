@@ -35,12 +35,12 @@ public class VideojuegoJdbc {
 			ps.setString(6, genero);
 
 			int filas = ps.executeUpdate();
-			log.info("Filas insertadas: {}", filas);
+			log.info("Videojuego insertado correctamente. Filas afectadas: {}", filas);
 
 			videojuego = new Videojuego(codigo, nombre, plataforma, precio, disponible, genero);
 		} catch (SQLException e) {
-			log.error("Error al insertar un videojuego: {}", e.getMessage(), e);
-			throw new RuntimeException("Error al insertar un videojuego.");
+			log.error("Error al insertar el videojuego en la base de datos: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al insertar el videojuego.");
 		} finally {
 			try {
 				if (ps != null) {
@@ -50,8 +50,8 @@ public class VideojuegoJdbc {
 					con.close();
 				}
 			} catch (SQLException e) {
-				log.error("Error al cerrar los recursos de inserción: {}", e.getMessage(), e);
-				throw new RuntimeException("Error al cerrar los recursos de inserción");
+				log.error("Error al cerrar los recursos de la base de datos tras la inserción: {}", e.getMessage(), e);
+				throw new RuntimeException("Error al cerrar los recursos de inserción.");
 			}
 		}
 
@@ -77,8 +77,8 @@ public class VideojuegoJdbc {
 				videojuegos.add(v);
 			}
 		} catch (SQLException e) {
-			log.error("Error al listar clientes: {}", e.getMessage(), e);
-			throw new RuntimeException("Error al listar clientes");
+			log.error("Error al listar los videojuegos de la base de datos: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al listar los videojuegos.");
 		} finally {
 			try {
 				if (rs != null) {
@@ -91,7 +91,7 @@ public class VideojuegoJdbc {
 					con.close();
 				}
 			} catch (SQLException e) {
-				log.error("Error al cerrar los recursos de la consulta: {}", e.getMessage());
+				log.error("Error al cerrar los recursos de la base de datos tras la consulta: {}", e.getMessage());
 				throw new RuntimeException("Error al cerrar los recursos de la consulta.");
 			}
 		}
@@ -109,7 +109,7 @@ public class VideojuegoJdbc {
 		try {
 			con = Conexion.getConnection();
 			ps = con.prepareStatement(sql);
-			ps.setString(1, codigo);			
+			ps.setString(1, codigo);
 			rs = ps.executeQuery();
 
 			if (rs.next()) {
@@ -117,8 +117,8 @@ public class VideojuegoJdbc {
 						rs.getDouble("precio"), rs.getBoolean("disponible"), rs.getString("genero"));
 			}
 		} catch (SQLException e) {
-			log.error("Error al buscar videojuego por código: {}", e.getMessage(), e);
-			throw new RuntimeException("Error al buscar videojuego por codigo");
+			log.error("Error al buscar el videojuego por código [{}]: {}", codigo, e.getMessage(), e);
+			throw new RuntimeException("Error al buscar el videojuego por código.");
 		} finally {
 			try {
 				if (rs != null) {
@@ -131,8 +131,8 @@ public class VideojuegoJdbc {
 					con.close();
 				}
 			} catch (SQLException e) {
-				log.error("Error al cerrar los recursos de búsqueda: {}", e.getMessage(), e);
-				throw new RuntimeException("Error al cerrar los recursos de búsquedad");
+				log.error("Error al cerrar los recursos de la base de datos tras la búsqueda: {}", e.getMessage(), e);
+				throw new RuntimeException("Error al cerrar los recursos de búsqueda.");
 			}
 		}
 
@@ -157,14 +157,14 @@ public class VideojuegoJdbc {
 			ps.setString(6, videojuegoActualizado.getCodigo());
 
 			int filas = ps.executeUpdate();
-			log.info("¡Videojuego actualizado con éxito!: {} afectadas", filas);
+			log.info("Videojuego actualizado exitosamente. Filas afectadas: {}", filas);
 
 			videojuego = new Videojuego(videojuegoActualizado.getCodigo(), videojuegoActualizado.getNombre(),
 					videojuegoActualizado.getPlataforma(), videojuegoActualizado.getPrecio(),
 					videojuegoActualizado.isDisponible(), videojuegoActualizado.getGenero());
 		} catch (SQLException e) {
-			log.error("Error al actualizar el cliente: {}", e.getMessage(), e);
-			throw new RuntimeException("Error al actualizar el cliente");
+			log.error("Error al actualizar el videojuego en la base de datos: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al actualizar el videojuego.");
 		} finally {
 			try {
 				if (ps != null) {
@@ -174,11 +174,50 @@ public class VideojuegoJdbc {
 					con.close();
 				}
 			} catch (SQLException e) {
-				log.error("Error al cerrar los recursos de actualización: {}", e.getMessage(), e);
-				throw new RuntimeException("Error al cerrar los recursos de actualización");
+				log.error("Error al cerrar los recursos de la base de datos tras la actualización: {}", e.getMessage(),
+						e);
+				throw new RuntimeException("Error al cerrar los recursos de actualización.");
 			}
 		}
 
 		return videojuego;
+	}
+
+	public static boolean eliminar(String codigo) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		String sql = "DELETE * FROM WHERE codigo = ?";
+		boolean eliminado = false;
+
+		try {
+			con = Conexion.getConnection();
+			ps = con.prepareStatement(sql);
+
+			ps.setString(1, codigo);
+			int filas = ps.executeUpdate();
+
+			if (filas > 0) {
+				log.info("Videojuego eliminado exitosamente. Filas afectadas: {}", filas);
+				eliminado = true;
+			}
+		} catch (Exception e) {
+			log.error("Error al eliminar el videojuego de la base de datos: {}", e.getMessage(), e);
+			throw new RuntimeException("Error al eliminar el videojuego.");
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				log.error("Error al cerrar los recursos de la base de datos tras la eliminación: {}", e.getMessage(),
+						e);
+				throw new RuntimeException("Error al cerrar los recursos de eliminación.");
+			}
+		}
+
+		return eliminado;
 	}
 }
